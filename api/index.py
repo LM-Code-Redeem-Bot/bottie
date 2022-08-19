@@ -1,11 +1,9 @@
 import discord
 import os
 import requests
-from keep_alive import keep_alive
 import time
 from threading import Thread
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import six
 
