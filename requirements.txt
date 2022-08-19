@@ -1,4 +1,4 @@
 Flask
 discord
 pandas
-six
+requests
