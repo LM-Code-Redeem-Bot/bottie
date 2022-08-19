@@ -4,8 +4,6 @@ import requests
 import time
 from threading import Thread
 import pandas as pd
-import matplotlib.pyplot as plt
-import six
 
 codes = []
 thread_count=0
@@ -13,42 +11,6 @@ thread_count=0
 admins = list(str(os.getenv('admin')).split(","))
 
 client = discord.Client()
-
-def render_mpl_table(data,
-                     fname,
-                     col_width=3.0,
-                     row_height=0.625,
-                     font_size=14,
-                     header_color='#000',
-                     row_colors=['#f1f1f2', 'w'],
-                     edge_color='w',
-                     bbox=[0, 0, 1, 1],
-                     header_columns=0,
-                     ax=None,
-                     **kwargs):
-    if ax is None:
-        size = (np.array(data.shape[::-1]) + np.array([0, 1])) * np.array(
-            [col_width, row_height])
-        fig, ax = plt.subplots(figsize=size)
-        ax.axis('off')
-
-    mpl_table = ax.table(cellText=data.values,
-                         bbox=bbox,
-                         colLabels=data.columns,
-                         cellLoc='center',
-                         **kwargs)
-
-    mpl_table.auto_set_font_size(False)
-    mpl_table.set_fontsize(font_size)
-
-    for k, cell in six.iteritems(mpl_table._cells):
-        cell.set_edgecolor(edge_color)
-        if k[0] == 0 or k[1] < header_columns:
-            cell.set_text_props(weight='bold', color='w')
-            cell.set_facecolor(header_color)
-        else:
-            cell.set_facecolor(row_colors[k[0] % len(row_colors)])
-    fig.savefig(fname)
 
 def sub_redeem(i, temp, code):
     global thread_count
@@ -103,45 +65,6 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-
-    if message.content.startswith(
-        ('$$Code@history', '$$Code@History', '$$code@History', '$$code@history',
-         '$$CODE@HISTORY')):
-        if str(message.author.name) in admins:
-            msg1 = '🧿{0.author.mention} History of Codes Till Today As Follows...'.format(
-                message)
-            await message.channel.send('==================================')
-            await message.channel.send(msg1)
-            await message.channel.send('==================================')
-            if (len(list(
-                    pd.read_csv('code_history.csv')["Codes History"])) == 0):
-                await message.channel.send("🤐    Co History Is Empty...!!!")
-            else:
-                await message.channel.send(
-                    "\n ----------------------------------------------------------"
-                )
-                c = 1
-                for i in list(
-                        pd.read_csv('code_history.csv')["Codes History"]):
-                    await message.channel.send('\n' + str(c) + ') ' + str(i))
-                    c = c + 1
-                await message.channel.send(
-                    "\n ----------------------------------------------------------"
-                )
-                await message.channel.send('=================================='
-                                           )
-                render_mpl_table(pd.read_csv('code_history.csv'),
-                                 "codes.png",
-                                 header_columns=0,
-                                 col_width=2.0)
-                await message.channel.send(file=discord.File('codes.png'))
-            await message.channel.send('==================================')
-        else:
-            msg1 = '🧐 {0.author.mention} Warning Its Only For Admins...!!!'.format(
-                message)
-            await message.channel.send('==================================')
-            await message.channel.send(msg1)
-            await message.channel.send('==================================')
 
     if message.content.startswith(('$help', '$Help')):
         msg1 = '🚀 Hey Dude, Here are bot commands for you !!! {0.author.mention}'.format(
@@ -206,54 +129,5 @@ async def on_message(message):
             await message.channel.send("🚀" + str(li[1]) +
                                        " ,Redemeed Successfully...!!!")
         await message.channel.send('==================================')
-
-    if message.content.startswith(
-        ('$$Data@history', '$$data@history', '$$Data@History', '$$DATA@HISTORY',
-         '$$data@History')):
-        if str(message.author.name) in admins:
-            msg1 = '🧿{0.author.mention} Data Is As Follows...'.format(message)
-            await message.channel.send('==================================')
-            await message.channel.send(msg1)
-            await message.channel.send('==================================')
-            if (len(list(pd.read_csv(os.getenv('data_sheet'))["ID"])) == 0):
-                await message.channel.send('👀 Data History Is Empty...!!!')
-                await message.channel.send('=================================='
-                                           )
-            else:
-                await message.channel.send(
-                    pd.read_csv(
-                        os.getenv('data_sheet')).to_markdown(index=False))
-                await message.channel.send('=================================='
-                                           )
-                render_mpl_table(pd.read_csv(os.getenv('data_sheet')),
-                                 "data.png",
-                                 header_columns=0,
-                                 col_width=2.0)
-                await message.channel.send(file=discord.File('data.png'))
-                await message.channel.send('=================================='
-                                           )
-        else:
-            msg1 = '🧐 {0.author.mention} Warning Its Only For Admins...!!!'.format(
-                message)
-            await message.channel.send('==================================')
-            await message.channel.send(msg1)
-            await message.channel.send('==================================')
-
-    if message.content.startswith(('$$code@reset', '$$Code@Reset', '$$Code@reset',
-                                   '$$code@Reset', '$$CODE@RESET')):
-        if str(message.author.name) in admins:
-            await message.channel.send('==================================')
-            new_code = pd.DataFrame(columns=["Codes History"])
-            new_code.to_csv('code_history.csv', index=False)
-            await message.channel.send("Code History Deleted Successfully..!!!"
-                                       )
-            await message.channel.send('==================================')
-        else:
-            msg1 = '🧐 {0.author.mention} Warning Its Only For Admins...!!!'.format(
-                message)
-            await message.channel.send('==================================')
-            await message.channel.send(msg1)
-            await message.channel.send('==================================')
-
 
 client.run(os.getenv('TOKEN'))
