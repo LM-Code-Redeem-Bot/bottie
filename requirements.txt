@@ -1,6 +1,4 @@
 Flask
 discord
 pandas
-numpy
-matplotlib
 six
